@@ -1,9 +1,8 @@
-package com.spotify.dto;
+package com.spotify.dto.request;
 
-public record CreateSongRequest(
+public record UpdateSongRequest(
         String title,
         String storageKey,
         String contentType,
         Integer durationSeconds
-) {
-}
+) {}

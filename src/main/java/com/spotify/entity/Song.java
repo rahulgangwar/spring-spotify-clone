@@ -11,43 +11,43 @@ import java.time.LocalDateTime;
 @Data
 public class Song {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false)
-  private String title;
+    @Column(nullable = false)
+    private String title;
 
-  @Column(length = 512)
-  private String storageKey;
+    @Column(length = 512)
+    private String storageKey;
 
-  private String contentType;
+    private String contentType;
 
-  private Integer durationSeconds;
+    private Integer durationSeconds;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 20)
-  private SongStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private SongStatus status;
 
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
-  @PrePersist
-  protected void onCreate() {
-    LocalDateTime now = LocalDateTime.now();
-    createdAt = now;
-    updatedAt = now;
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
 
-    if (status == null) {
-      status = SongStatus.PENDING;
+        if (status == null) {
+            status = SongStatus.PENDING;
+        }
     }
-  }
 
-  @PreUpdate
-  protected void onUpdate() {
-    updatedAt = LocalDateTime.now();
-  }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

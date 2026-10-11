@@ -1,4 +1,4 @@
-package com.spotify.dto;
+package com.spotify.dto.response;
 
 public record UploadUrlResponse(
         String uploadUrl,

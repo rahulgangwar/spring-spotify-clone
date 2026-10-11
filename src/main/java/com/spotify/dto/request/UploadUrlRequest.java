@@ -1,4 +1,4 @@
-package com.spotify.dto;
+package com.spotify.dto.request;
 
 public record UploadUrlRequest(
         String fileName,
