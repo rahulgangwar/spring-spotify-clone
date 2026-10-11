@@ -9,7 +9,7 @@
 
 ### Home page - Upload and Play
 
-![img_2.png](img_2.png)
+![img_5.png](img_5.png)
 
 ### Songs are stored on S3 after upload
 

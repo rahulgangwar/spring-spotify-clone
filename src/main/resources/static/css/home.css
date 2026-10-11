@@ -3,10 +3,28 @@
     box-sizing: border-box;
 }
 
+:root {
+    color-scheme: light;
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #ecfdf3;
+    --text-primary: #191414;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
+    --green: #1db954;
+    --green-hover: #169c46;
+}
+
+html {
+    min-height: 100%;
+    background: var(--background);
+}
+
 body {
     margin: 0;
-    background: #121212;
-    color: #fff;
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text-primary);
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
 }
@@ -15,8 +33,16 @@ body {
     width: 100%;
     min-height: 100vh;
     padding: 28px 40px 130px;
-    background: linear-gradient(180deg, #282035 0, #18151e 180px, #121212 300px);
+    background: linear-gradient(
+            180deg,
+            #e9f8ef 0,
+            #f3f8f5 180px,
+            #f8fafc 320px
+    );
+    color: var(--text-primary);
 }
+
+/* Header */
 
 .topbar {
     display: flex;
@@ -28,32 +54,37 @@ body {
 
 h1 {
     margin: 0;
+    color: var(--text-primary);
     font-size: 30px;
 }
 
 h2 {
     margin: 0;
+    color: var(--text-primary);
     font-size: 20px;
 }
 
 .subtitle {
     margin: 8px 0 0;
-    color: #b3b3b3;
+    color: var(--text-secondary);
 }
+
+/* Buttons */
 
 .primary-button {
     border: 0;
     border-radius: 24px;
     padding: 12px 22px;
-    background: #1ed760;
-    color: #000;
+    background: var(--green);
+    color: #ffffff;
     font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .primary-button:hover {
-    background: #3be477;
+    background: var(--green-hover);
 }
 
 .primary-button:disabled {
@@ -61,18 +92,24 @@ h2 {
     cursor: not-allowed;
 }
 
+/* Upload panel */
+
 .upload-panel {
     width: 100%;
     margin-bottom: 32px;
     padding: 24px;
-    border: 1px solid #353535;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    background: #202020;
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
+
+/* Upload form */
 
 .form-grid {
     display: grid;
@@ -84,17 +121,26 @@ h2 {
 .field label {
     display: block;
     margin-bottom: 9px;
-    color: #b3b3b3;
+    color: #475569;
 }
 
 .field input {
     width: 100%;
     min-height: 44px;
     padding: 10px 12px;
-    border: 1px solid #484848;
+    border: 1px solid #cbd5e1;
     border-radius: 6px;
-    background: #2a2a2a;
-    color: #fff;
+    background: #ffffff;
+    color: var(--text-primary);
+}
+
+.field input:focus {
+    border-color: var(--green);
+    outline: 2px solid rgba(29, 185, 84, 0.15);
+}
+
+.field input[type="file"] {
+    padding: 9px;
 }
 
 .upload-actions {
@@ -105,12 +151,15 @@ h2 {
 }
 
 #status {
-    color: #b3b3b3;
+    color: var(--text-secondary);
     overflow-wrap: anywhere;
 }
 
+/* Song library */
+
 .library {
     width: 100%;
+    color: var(--text-primary);
 }
 
 .library-heading {
@@ -121,28 +170,38 @@ h2 {
 }
 
 #songCount {
-    color: #b3b3b3;
+    color: var(--text-secondary);
 }
+
+/* Table */
 
 .table-wrapper {
     width: 100%;
     overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    background: var(--surface);
+    color: var(--text-primary);
     text-align: left;
 }
 
 thead {
-    color: #b3b3b3;
+    background: #f1f5f9;
+    color: var(--text-secondary);
 }
 
 th {
     height: 42px;
     padding: 0 12px;
-    border-bottom: 1px solid #383838;
+    border-bottom: 1px solid var(--border);
+    background: #f1f5f9;
+    color: var(--text-secondary);
     font-weight: 400;
     white-space: nowrap;
 }
@@ -150,7 +209,8 @@ th {
 td {
     height: 66px;
     padding: 8px 12px;
-    color: #b3b3b3;
+    border-bottom: 1px solid var(--border);
+    color: #475569;
 }
 
 tbody tr {
@@ -158,11 +218,11 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background: #292929;
+    background: var(--surface-hover);
 }
 
 tbody tr:hover td {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .number-column {
@@ -188,8 +248,10 @@ tbody tr:hover td {
     text-align: center;
 }
 
+/* Song details */
+
 .song-title {
-    color: #fff;
+    color: var(--text-primary);
     font-size: 14px;
     font-weight: 500;
     overflow-wrap: anywhere;
@@ -197,31 +259,39 @@ tbody tr:hover td {
 
 .song-subtitle {
     margin-top: 5px;
-    color: #b3b3b3;
+    color: var(--text-secondary);
     font-size: 12px;
     overflow-wrap: anywhere;
 }
+
+/* Play button */
 
 .play-button {
     width: 36px;
     height: 36px;
     border: none;
     border-radius: 50%;
-    background: #1ed760;
-    color: #000;
+    background: var(--green);
+    color: #ffffff;
     font-size: 15px;
     cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .play-button:hover {
-    background: #3be477;
+    background: var(--green-hover);
     transform: scale(1.05);
 }
 
+/* Empty state */
+
 .empty-state {
     height: 100px;
+    color: var(--text-secondary);
     text-align: center;
 }
+
+/* Fixed audio player */
 
 .player-bar {
     position: fixed;
@@ -235,20 +305,26 @@ tbody tr:hover td {
     gap: 24px;
     min-height: 88px;
     padding: 14px 32px;
-    border-top: 1px solid #333;
-    background: #181818;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.97);
+    color: var(--text-primary);
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(12px);
 }
 
 #nowPlaying {
     min-width: 0;
-    color: #fff;
+    color: var(--text-primary);
     overflow-wrap: anywhere;
 }
 
 #audioPlayer {
     width: min(600px, 65%);
     height: 48px;
+    color-scheme: light;
 }
+
+/* Responsive layout */
 
 @media (max-width: 700px) {
     .app {
@@ -264,12 +340,14 @@ tbody tr:hover td {
         display: none;
     }
 
-    th, td {
+    th,
+    td {
         padding: 8px;
     }
 
     .topbar {
         align-items: flex-start;
+        gap: 14px;
     }
 
     h1 {
