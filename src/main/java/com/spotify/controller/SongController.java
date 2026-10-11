@@ -55,6 +55,12 @@ public class SongController {
         return songService.patch(id, updates);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        songService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/upload-url")
     public UploadUrlResponse generateUploadUrl(@RequestBody UploadUrlRequest request) {
         return s3StorageService.generateUploadUrl(request.fileName(), request.contentType());

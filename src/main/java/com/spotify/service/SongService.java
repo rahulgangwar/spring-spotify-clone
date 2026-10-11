@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.spotify.dto.request.UpdateSongRequest;
+import com.spotify.service.s3.S3StorageService;
 import org.springframework.stereotype.Service;
 import com.spotify.entity.Song;
 import com.spotify.repository.SongRepository;
@@ -11,9 +12,11 @@ import com.spotify.repository.SongRepository;
 @Service
 public class SongService {
     private final SongRepository songRepository;
+    private final S3StorageService s3StorageService;
 
-    public SongService(SongRepository songRepository) {
+    public SongService(SongRepository songRepository, S3StorageService s3StorageService) {
         this.songRepository = songRepository;
+        this.s3StorageService = s3StorageService;
     }
 
     public Song save(Song song) {
@@ -28,6 +31,14 @@ public class SongService {
 
     public List<Song> getAll() {
         return songRepository.findAll();
+    }
+
+    public void delete(Long id) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Song not found: " + id));
+
+        s3StorageService.deleteObject(song.getStorageKey());
+        songRepository.delete(song);
     }
 
     public Song update(Long id, UpdateSongRequest request) {

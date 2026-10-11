@@ -22,106 +22,129 @@ import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignReque
 
 @Service
 public class S3StorageService {
-  private final S3Presigner s3Presigner;
-  private final String bucketName;
-  private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
+    private final String bucketName;
+    private final S3Client s3Client;
 
-  public S3StorageService(
-      S3Presigner s3Presigner,
-      @Value("${aws.s3.bucket-name}") String bucketName,
-      S3Client s3Client) {
-    this.s3Presigner = s3Presigner;
-    this.bucketName = bucketName;
-    this.s3Client = s3Client;
-  }
+    public S3StorageService(
+            S3Presigner s3Presigner,
+            @Value("${aws.s3.bucket-name}") String bucketName,
+            S3Client s3Client) {
+        this.s3Presigner = s3Presigner;
+        this.bucketName = bucketName;
+        this.s3Client = s3Client;
+    }
 
-  public UploadUrlResponse generateUploadUrl(String fileName, String contentType) {
-    String extension = getFileExtension(fileName);
-    String storageKey = "audio/" + UUID.randomUUID() + "_" + fileName + extension;
+    public UploadUrlResponse generateUploadUrl(String fileName, String contentType) {
+        String storageKey = "audio/" + generateUniqueFileName(fileName);
 
-    PutObjectRequest putObjectRequest =
-        PutObjectRequest.builder()
-            .bucket(bucketName)
-            .key(storageKey)
-            .contentType(contentType)
-            .build();
+        PutObjectRequest putObjectRequest =
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(storageKey)
+                        .contentType(contentType)
+                        .build();
 
-    PutObjectPresignRequest presignRequest =
-        PutObjectPresignRequest.builder()
-            .signatureDuration(Duration.ofMinutes(10))
-            .putObjectRequest(putObjectRequest)
-            .build();
+        PutObjectPresignRequest presignRequest =
+                PutObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofMinutes(10))
+                        .putObjectRequest(putObjectRequest)
+                        .build();
 
-    String uploadUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
+        String uploadUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
 
-    return new UploadUrlResponse(uploadUrl, storageKey);
-  }
+        return new UploadUrlResponse(uploadUrl, storageKey);
+    }
 
-  public String generateDownloadUrl(String storageKey) {
-    GetObjectRequest getObjectRequest =
-        GetObjectRequest.builder().bucket(bucketName).key(storageKey).build();
+    public String generateDownloadUrl(String storageKey) {
+        GetObjectRequest getObjectRequest =
+                GetObjectRequest.builder().bucket(bucketName).key(storageKey).build();
 
-    GetObjectPresignRequest presignRequest =
-        GetObjectPresignRequest.builder()
-            .signatureDuration(Duration.ofMinutes(10))
-            .getObjectRequest(getObjectRequest)
-            .build();
+        GetObjectPresignRequest presignRequest =
+                GetObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofMinutes(10))
+                        .getObjectRequest(getObjectRequest)
+                        .build();
 
-    return s3Presigner.presignGetObject(presignRequest).url().toString();
-  }
+        return s3Presigner.presignGetObject(presignRequest).url().toString();
+    }
 
-  private String getFileExtension(String fileName) {
-    int index = fileName.lastIndexOf('.');
-    return index >= 0 ? fileName.substring(index) : "";
-  }
+    private String getFileExtension(String fileName) {
+        int index = fileName.lastIndexOf('.');
+        return index >= 0 ? fileName.substring(index) : "";
+    }
 
-  public MultipartUploadResponse initiateMultipartUpload(MultipartUploadRequest request) {
-    String storageKey = "audio/" + UUID.randomUUID() + getFileExtension(request.fileName());
+    public MultipartUploadResponse initiateMultipartUpload(MultipartUploadRequest request) {
+        String storageKey = "audio/" + generateUniqueFileName(request.fileName());
 
-    var result =
-        s3Client.createMultipartUpload(
-            CreateMultipartUploadRequest.builder()
-                .bucket(bucketName)
-                .key(storageKey)
-                .contentType(request.contentType())
-                .build());
+        var result =
+                s3Client.createMultipartUpload(
+                        CreateMultipartUploadRequest.builder()
+                                .bucket(bucketName)
+                                .key(storageKey)
+                                .contentType(request.contentType())
+                                .build());
 
-    return new MultipartUploadResponse(storageKey, result.uploadId());
-  }
+        return new MultipartUploadResponse(storageKey, result.uploadId());
+    }
 
-  public MultipartPartUrlResponse generatePartUploadUrl(MultipartPartUrlRequest request) {
-    UploadPartRequest uploadPartRequest =
-        UploadPartRequest.builder()
-            .bucket(bucketName)
-            .key(request.storageKey())
-            .uploadId(request.uploadId())
-            .partNumber(request.partNumber())
-            .build();
+    public MultipartPartUrlResponse generatePartUploadUrl(MultipartPartUrlRequest request) {
+        UploadPartRequest uploadPartRequest =
+                UploadPartRequest.builder()
+                        .bucket(bucketName)
+                        .key(request.storageKey())
+                        .uploadId(request.uploadId())
+                        .partNumber(request.partNumber())
+                        .build();
 
-    var presignRequest =
-        UploadPartPresignRequest.builder()
-            .signatureDuration(Duration.ofMinutes(10))
-            .uploadPartRequest(uploadPartRequest)
-            .build();
+        var presignRequest =
+                UploadPartPresignRequest.builder()
+                        .signatureDuration(Duration.ofMinutes(10))
+                        .uploadPartRequest(uploadPartRequest)
+                        .build();
 
-    String url = s3Presigner.presignUploadPart(presignRequest).url().toString();
-    return new MultipartPartUrlResponse(request.partNumber(), url);
-  }
+        String url = s3Presigner.presignUploadPart(presignRequest).url().toString();
+        return new MultipartPartUrlResponse(request.partNumber(), url);
+    }
 
-  public void completeMultipartUpload(CompleteMultipartUploadRequest request) {
-    List<CompletedPart> completedParts =
-        request.parts().stream()
-            .map(
-                part ->
-                    CompletedPart.builder().partNumber(part.partNumber()).eTag(part.eTag()).build())
-            .toList();
+    public void completeMultipartUpload(CompleteMultipartUploadRequest request) {
+        List<CompletedPart> completedParts =
+                request.parts().stream()
+                        .map(
+                                part ->
+                                        CompletedPart.builder()
+                                                .partNumber(part.partNumber())
+                                                .eTag(part.eTag())
+                                                .build())
+                        .toList();
 
-    s3Client.completeMultipartUpload(
-        software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest.builder()
-            .bucket(bucketName)
-            .key(request.storageKey())
-            .uploadId(request.uploadId())
-            .multipartUpload(CompletedMultipartUpload.builder().parts(completedParts).build())
-            .build());
-  }
+        s3Client.completeMultipartUpload(
+                software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest.builder()
+                        .bucket(bucketName)
+                        .key(request.storageKey())
+                        .uploadId(request.uploadId())
+                        .multipartUpload(
+                                CompletedMultipartUpload.builder().parts(completedParts).build())
+                        .build());
+    }
+
+    public void deleteObject(String storageKey) {
+        s3Client.deleteObject(builder -> builder.bucket(bucketName).key(storageKey));
+    }
+
+    public static String generateUniqueFileName(String originalFileName) {
+        if (originalFileName == null || originalFileName.isBlank()) {
+            throw new IllegalArgumentException("File name cannot be empty");
+        }
+
+        String fileName = originalFileName.trim();
+        int lastDot = fileName.lastIndexOf('.');
+
+        String name = lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+        String extension = lastDot > 0 ? fileName.substring(lastDot) : "";
+
+        name = name.replaceAll("[^a-zA-Z0-9_-]", "_");
+
+        return name + "_" + UUID.randomUUID() + extension.toLowerCase();
+    }
 }
