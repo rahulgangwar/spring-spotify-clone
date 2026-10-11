@@ -1,20 +1,20 @@
 package com.spotify.service.s3;
 
-import com.spotify.dto.UploadUrlRequest;
-import com.spotify.dto.UploadUrlResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-
 import java.time.Duration;
 import java.util.UUID;
 
+import com.spotify.dto.UploadUrlResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+
 @Service
 public class S3StorageService {
-
   private final S3Presigner s3Presigner;
   private final String bucketName;
 
@@ -24,13 +24,15 @@ public class S3StorageService {
     this.bucketName = bucketName;
   }
 
-  public UploadUrlResponse generateUploadUrl(UploadUrlRequest request) {
-    String storageKey = "audio/" + UUID.randomUUID() + getFileExtension(request.fileName());
+  public UploadUrlResponse generateUploadUrl(String fileName, String contentType) {
+    String extension = getFileExtension(fileName);
+    String storageKey = "audio/" + UUID.randomUUID() + extension;
+
     PutObjectRequest putObjectRequest =
         PutObjectRequest.builder()
             .bucket(bucketName)
             .key(storageKey)
-            .contentType(request.contentType())
+            .contentType(contentType)
             .build();
 
     PutObjectPresignRequest presignRequest =
@@ -39,12 +41,26 @@ public class S3StorageService {
             .putObjectRequest(putObjectRequest)
             .build();
 
-    PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-    return new UploadUrlResponse(presignedRequest.url().toString(), storageKey);
+    String uploadUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
+
+    return new UploadUrlResponse(uploadUrl, storageKey);
+  }
+
+  public String generateDownloadUrl(String storageKey) {
+    GetObjectRequest getObjectRequest =
+        GetObjectRequest.builder().bucket(bucketName).key(storageKey).build();
+
+    GetObjectPresignRequest presignRequest =
+        GetObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(10))
+            .getObjectRequest(getObjectRequest)
+            .build();
+
+    return s3Presigner.presignGetObject(presignRequest).url().toString();
   }
 
   private String getFileExtension(String fileName) {
-    int dotIndex = fileName.lastIndexOf('.');
-    return dotIndex >= 0 ? fileName.substring(dotIndex) : "";
+    int index = fileName.lastIndexOf('.');
+    return index >= 0 ? fileName.substring(index) : "";
   }
 }

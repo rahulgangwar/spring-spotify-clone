@@ -1,10 +1,13 @@
 const songList = document.getElementById("songList");
 const songCount = document.getElementById("songCount");
+const audioPlayer = document.getElementById("audioPlayer");
+const nowPlaying = document.getElementById("nowPlaying");
 
 async function loadSongs() {
     try {
         const response = await fetch("/api/songs");
         if (!response.ok) throw new Error("Failed to load songs.");
+
         const songs = await response.json();
         songList.replaceChildren();
         songCount.textContent = songs.length + (songs.length === 1 ? " song" : " songs");
@@ -12,7 +15,7 @@ async function loadSongs() {
         if (songs.length === 0) {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
-            cell.colSpan = 5;
+            cell.colSpan = 6;
             cell.className = "empty-state";
             cell.textContent = "No songs yet. Upload your first song.";
             row.appendChild(cell);
@@ -47,18 +50,45 @@ async function loadSongs() {
             durationCell.className = "duration-column";
             durationCell.textContent = formatDuration(song.durationSeconds);
 
-            row.append(numberCell, titleCell, albumCell, dateCell, durationCell);
+            const playCell = document.createElement("td");
+            playCell.className = "play-column";
+            const playButton = document.createElement("button");
+            playButton.className = "play-button";
+            playButton.type = "button";
+            playButton.textContent = "▶";
+            playButton.title = "Play " + song.title;
+            playButton.setAttribute("aria-label", "Play " + song.title);
+            playButton.addEventListener("click", () => playSong(song));
+            playCell.appendChild(playButton);
+
+            row.append(numberCell, titleCell, albumCell, dateCell, durationCell, playCell);
             songList.appendChild(row);
         });
     } catch (error) {
         songList.replaceChildren();
         const row = document.createElement("tr");
         const cell = document.createElement("td");
-        cell.colSpan = 5;
+        cell.colSpan = 6;
         cell.className = "empty-state";
         cell.textContent = error.message || "Could not load songs.";
         row.appendChild(cell);
         songList.appendChild(row);
+    }
+}
+
+async function playSong(song) {
+    try {
+        nowPlaying.textContent = "Loading: " + song.title;
+        const response = await fetch(`/api/songs/${song.id}/play`);
+        if (!response.ok) throw new Error("Could not get the song URL.");
+
+        const {playUrl} = await response.json();
+        audioPlayer.src = playUrl;
+        await audioPlayer.play();
+        nowPlaying.textContent = song.title;
+    } catch (error) {
+        nowPlaying.textContent = "Unable to play: " + song.title;
+        console.error("Playback failed:", error);
     }
 }
 

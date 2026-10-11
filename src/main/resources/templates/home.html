@@ -52,16 +52,22 @@
                     <th class="album-column">Album</th>
                     <th class="date-column">Date added</th>
                     <th class="duration-column" title="Duration">◷</th>
+                    <th class="play-column">Play</th>
                 </tr>
                 </thead>
                 <tbody id="songList">
                 <tr>
-                    <td colspan="5" class="empty-state">Loading songs...</td>
+                    <td colspan="6" class="empty-state">Loading songs...</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </section>
 </main>
+
+<footer class="player-bar">
+    <div id="nowPlaying">Select a song to start playing</div>
+    <audio id="audioPlayer" controls preload="none"></audio>
+</footer>
 </body>
 </html>
