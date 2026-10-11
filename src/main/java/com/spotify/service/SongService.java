@@ -19,6 +19,12 @@ public class SongService {
     return songRepository.save(song);
   }
 
+  public Song getSongById(Long id) {
+    return songRepository
+        .findById(id)
+        .orElseThrow(() -> new RuntimeException("Song not found with id: " + id));
+  }
+
   public List<Song> getAllSongs() {
     return songRepository.findAll();
   }
