@@ -1,0 +1,5 @@
+/target
+/.idea
+/.slingshot
+../.DS_Store
+*.iml
