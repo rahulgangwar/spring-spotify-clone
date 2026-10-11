@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - Your Library</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <script th:src="@{/js/upload.js}" defer></script>
+    <script th:src="@{/js/library.js}" defer></script>
+</head>
+<body>
+<main class="app">
+    <header class="topbar">
+        <div>
+            <h1>Your Library</h1>
+            <p class="subtitle">Your personal music collection</p>
+        </div>
+        <button id="toggleUpload" class="primary-button" type="button">+ Upload song</button>
+    </header>
+
+    <section id="uploadPanel" class="upload-panel hidden">
+        <h2>Upload a song</h2>
+        <form id="uploadForm">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="title">Song title</label>
+                    <input id="title" name="title" type="text" placeholder="Enter song title" maxlength="200" required>
+                </div>
+                <div class="field">
+                    <label for="file">Audio file</label>
+                    <input id="file" name="file" type="file" accept="audio/*" required>
+                </div>
+            </div>
+            <div class="upload-actions">
+                <button id="uploadButton" class="primary-button" type="submit">Upload</button>
+                <span id="status" role="status" aria-live="polite"></span>
+            </div>
+        </form>
+    </section>
+
+    <section class="library">
+        <div class="library-heading">
+            <h2>All songs</h2>
+            <span id="songCount">0 songs</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th class="number-column">#</th>
+                    <th>Title</th>
+                    <th class="album-column">Album</th>
+                    <th class="date-column">Date added</th>
+                    <th class="duration-column" title="Duration">◷</th>
+                </tr>
+                </thead>
+                <tbody id="songList">
+                <tr>
+                    <td colspan="5" class="empty-state">Loading songs...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
